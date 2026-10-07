@@ -1,11 +1,29 @@
 const express = require('express');
+const app = express();
 
-const app = express(); // instance of express js application   this is like creating a new
-// web server...
-// for handling incoming request , we use app.use()
-app.use('/test', (req, res) => {
-  res.send('Hello from ROHIT DASHBOARD 2026');
-});
+
+app.get("/user/:userId/:name/:password",(req,res)=>
+{
+  console.log(req.params);
+  res.send({firstName: 'Rohit',lastName: "Tiwari"});
+})
+
+// app.use("/user",(req,res,next)=>
+// {
+//   //Route Handler
+//   next();   // If you call next() then it will go to the next router handler
+//   res.send('User route handler');
+
+// },(req,res, next)=>
+// {
+//   // res.send('Admin Route Handler')
+//   next()
+// },
+// (req,res,next)=>
+// {
+//   next();
+//   res.send("Handling 3rd Route");
+// })
 app.listen(3000, () => {
-  console.log('Server is successfully running on port 3000');
+  console.log('Server is running and started on port 3000');
 });
