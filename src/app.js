@@ -1,23 +1,35 @@
 const express = require('express');
 const app = express();
+const connectDB = require('./config/db');
+const User = require('./models/user');
 
 
- app.use("/user",(req,res,next)=>
- {
-   //Route Handler
-   next();    //If you call next() then it will go to the next router handler
-   res.send('User route handler');
+app.post("/signup", async(req,res)=>
+{
+  //creating new instance of the User model
+  const user = new User({
+    firstName: "Rohit",
+    lastName: "Tiwari",
+    emailId: "rohittiwari@tmail.com",
+    password: "Rohit@123",
+    age: "22",
+    gender: "male"
 
- },(req,res, next)=>
- {
-    res.send('Admin Route Handler')
-   next()
- },
- (req,res,next)=>
- {
-   next();
-   res.send("Handling 3rd Route");
- })
-app.listen(3000, () => {
-  console.log('Server is running and started on port 3000');
-});
+
+  });
+
+ await user.save();
+ res.send("User added successfully");
+})
+
+connectDB().then(()=>
+{
+    console.log("Database has been connected successfully");
+    app.listen(3000, () => {
+      console.log('Server is running and started on port 3000');
+    });
+})
+.catch((err)=>
+{
+    console.log(err.message);
+})
