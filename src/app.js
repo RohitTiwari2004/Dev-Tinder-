@@ -97,7 +97,27 @@ app.delete("/user", async(req,res)=>
   }
   catch(err)
   {
+       return res.status(500).json({
+        message: err.message
+       });
+  }
+})
 
+//Updating the data of user...
+app.patch("/user", async(req,res)=>
+{
+  const userId = req.body.userId;
+  const data = req.body;
+  try
+  {
+    await User.findByIdAndUpdate({_id: userId},data, {returnDocument: "after"})
+    res.send("user data updated successfully");
+  }
+  catch(err)
+  {
+    res.status(400).json({
+      message: err.message
+    })
   }
 })
 connectDB().then(()=>
