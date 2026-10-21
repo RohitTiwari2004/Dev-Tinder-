@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
     firstName:
@@ -19,10 +20,26 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Email is required'],
         lowercase: true,
         unique: true,
-        trim: true
+        trim: true,
+        validate(value)
+        {
+            if(!validator.isEmail(value))
+            {
+                throw new Error("Invalid Email Address" + value);
+            }
+        }
     },
     password:{
-        type: String
+        type: String,
+        required: true,
+        validate(value)
+        {
+            if(!validator.isStrongPassword(value))
+            {
+                throw new Error("Enter a strong password: " + value);
+            }
+        }
+
     },
     age:
     {
@@ -44,7 +61,14 @@ const userSchema = new mongoose.Schema({
     photoUrl:
     {
         type: String,
-         default: "https://www.volunteersummernepal.org/blog/learn-basic-nepali-language" 
+         default: "https://www.volunteersummernepal.org/blog/learn-basic-nepali-language",
+         validate(value)
+         {
+            if(!validator.isURL(value))
+            {
+                throw new Error("Invalid photo URL:" + value);
+            }
+         } 
     },
     about: 
     {
