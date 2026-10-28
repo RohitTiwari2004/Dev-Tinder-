@@ -4,8 +4,11 @@ const connectDB = require('./config/db');
 const User = require('./models/user');
 const {validateSignupData} = require("./utils/validation");
 const bcrypt = require('bcrypt');
+const cookieParser =  require('cookie-parser')
+const jwt = require('jsonwebtoken');
 
 app.use(express.json());
+app.use(cookieParser());
 app.post("/signup", async(req,res)=>
 {
 
@@ -68,15 +71,20 @@ app.post('/login', async(req,res)=>
 
     const {emailId, password} = req.body;
 
-    const user = User.findOne({emailId: emailId});
+    const user = await User.findOne({emailId: emailId});
     if(!user)
     {
       throw new Error("Email Id is not present in db");
     }
 
-    const isPasswordValid = bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if(isPasswordValid)
     {
+      //Create a JWT Token 
+      const token = await jwt.sign({_id: user._id}, "@DevTinder$2027");
+      console.log(token);
+      // Add the token to cookie and send the response
+      res.cookie("token", token);
       res.send("Login Successful !!");
     }
     else
@@ -91,6 +99,19 @@ app.post('/login', async(req,res)=>
     });
   }
 });
+
+app.get("/profile", async(req,res)=>
+{
+  const cookies = req.cookies; // gets the cookies sent by the browser.
+  const {token} = cookies;  // extracts the jwt token so you can validate.
+  //Validating the token ..
+  const decodedMessage = await jwt.verify(token,"@DevTinder$2027");
+  const {_id} = decodedMessage;
+  console.log("The logged in User is " + _id);
+  console.log(decodedMessage);
+  console.log(cookies);
+  res.send("Reading cookie");
+})
 
 //Get user by email
 app.get("/user", async(req,res)=>
