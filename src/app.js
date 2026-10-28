@@ -6,6 +6,7 @@ const {validateSignupData} = require("./utils/validation");
 const bcrypt = require('bcrypt');
 const cookieParser =  require('cookie-parser')
 const jwt = require('jsonwebtoken');
+const {userAuth } = require("./middleware/auth")
 
 app.use(express.json());
 app.use(cookieParser());
@@ -100,17 +101,27 @@ app.post('/login', async(req,res)=>
   }
 });
 
-app.get("/profile", async(req,res)=>
+app.get("/profile", userAuth, async(req,res)=>
 {
-  const cookies = req.cookies; // gets the cookies sent by the browser.
-  const {token} = cookies;  // extracts the jwt token so you can validate.
-  //Validating the token ..
-  const decodedMessage = await jwt.verify(token,"@DevTinder$2027");
-  const {_id} = decodedMessage;
-  console.log("The logged in User is " + _id);
-  console.log(decodedMessage);
-  console.log(cookies);
-  res.send("Reading cookie");
+  try{
+
+  
+  // console.log(decodedMessage);
+  // console.log(cookies);
+
+  const user = req.user;
+  if(!user)
+  {
+    throw new Error("User doesnot exists")
+  }
+
+  res.send(user);
+  }catch(err)
+  {
+      res.status(400).json({
+        message: err.message,
+      })
+  }
 })
 
 //Get user by email
